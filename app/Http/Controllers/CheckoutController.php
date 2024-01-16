@@ -126,20 +126,25 @@ class CheckoutController extends Controller
         $manager_order=view('admin.manager_order')->with('all_order',$all_order);
         return view('admin_layout')->with('admin.manager_order',$manager_order);    
     }
-    public function view_order($orderId){
-      
-        
-            $this->AuthLogin();
-            $order_by_id=DB::table('tbl_order')
-            ->join('tbl_customers','tbl_order.customer_id','=','tbl_customers.customer_id')
-            ->join('tbl_shipping','tbl_order.shipping_id','=','tbl_shipping.shipping_id')
-            ->join('tbl_order_de','tbl_order.customer_id','=','tbl_order_de.order_id')
-            ->select('tbl_order.*','tbl_customers.*','tbl_shipping.*','tbl_order_de.*')->first();
-            $manager_order_by_id=view('admin.view_order')->with('order_by_id',$order_by_id);
+   public function view_order($orderId) {
+    $this->AuthLogin();
     
-            return view('admin_layout')->with('admin.manager_order',$manager_order_by_id);
-            
-        return view('admin.view_order');
+    $order_by_id = DB::table('tbl_order')
+        ->join('tbl_customers', 'tbl_order.customer_id', '=', 'tbl_customers.customer_id')
+        ->join('tbl_shipping', 'tbl_order.shipping_id', '=', 'tbl_shipping.shipping_id')
+        ->join('tbl_order_de', 'tbl_order.order_id', '=', 'tbl_order_de.order_id')
+        ->select('tbl_order.*', 'tbl_customers.*', 'tbl_shipping.*', 'tbl_order_de.*')
+        ->where('tbl_order.order_id', $orderId) // Filter by the provided orderId
+        ->first();
 
+    if ($order_by_id) {
+        $manager_order_by_id = view('admin.view_order')->with('order_by_id', $order_by_id);
+        return view('admin_layout')->with('admin.manager_order', $manager_order_by_id);
+    } else {
+        // Handle the case when the specified order is not found
+        // You might want to display an error message or redirect
+        return view('admin.order_not_found');
     }
+}
+
 }
